@@ -11,7 +11,7 @@ Functions
 --
 * fast queries across large sets (>1000) of inferred haplotypes
 * `ggplot2`-based plotting of genome mosaics
-* haplotype-bsaed QTL-mapping under several phenotype models
+* haplotype-based QTL-mapping under several phenotype models
 
 Interop
 --
