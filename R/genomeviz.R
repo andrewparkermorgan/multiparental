@@ -58,7 +58,7 @@ plot.haplotypes <- function(haps, flatten = TRUE, fill = "strain", omit.chrs = c
 	
 	## flatten list-of-lists, if necessary
 	haps.df <- data.frame()
-	if (flatten)
+	if (flatten | !is.data.frame(haps))
 		haps.df <- ldply(haps, as.data.frame)
 	else
 		haps.df <- haps
@@ -88,16 +88,18 @@ plot.haplotypes <- function(haps, flatten = TRUE, fill = "strain", omit.chrs = c
 
 plot.stacked.haps <- function(.haps, chroms = "chr2", which = "both",
 															sort.order = setNames(1:length(.haps), names(.haps)),
-															strain.col = "strain", label = TRUE, xlim = NULL, ...) {
+															strain.col = "strain", label = TRUE, xlim = NULL,
+															spacing = 0.05, gap = 0.1, group.by = NULL, ...) {
 	
 	## copy original input
 	haps <- .haps
+	haps.df <- data.frame()
 	
 	## extract desired haplotype for each sample
 	if (length(which) == length(haps)) {
 		## given a vector <which> parallel to <haps>, use its i-th element to subset the i-th segment set
 		haps <- lapply(1:length(which), function(i) {
-			rez <- haps[[i]][[ which[i] ]]
+			rez <- haps[[i]][ which[i] ]
 			return(rez)
 			# if (!is.null(rez))
 				# rez[ rez %over% x.target ]
@@ -105,26 +107,33 @@ plot.stacked.haps <- function(.haps, chroms = "chr2", which = "both",
 				# return(x.target)
 		})
 		names(haps) <- names(.haps)
+		## roll up haplotypes into dataframe for plotting, adding sort order
+		haps.df <- ldply(haps, ldply, as.data.frame)
+		colnames(haps.df)[1] <- "origin"
 	}
 	else if (which[1] != "both") {
 		## subset using first element of <which>
 		haps <- lapply(haps, "[[", which[1])
+		## roll up haplotypes into dataframe for plotting, adding sort order
+		haps.df <- ldply(haps, ldply, as.data.frame)
+		colnames(haps.df)[1] <- "origin"
+	}
+	else {
+		## roll up haplotypes into dataframe for plotting, adding sort order
+		haps.df <- ldply(haps, ldply, as.data.frame)
 	}
 	
-	## roll up haplotypes into dataframe for plotting, adding sort order
-	haps.df <- ldply(haps, ldply, as.data.frame)
-	
+	shrink <- ifelse(which[1] == "both", 0.5, 1)
 	haps.df$ypos <- sort.order[ as.character(haps.df$id) ]
-	if (which == "both") {
+	if (which[1] == "both") {
 		haps.df$updown <- ifelse(haps.df$origin == "maternal", 1, -1)
 	}
 	else {
 		haps.df$ypos <- haps.df$ypos - 0.5
+		haps.df$updown <- 1
 	}
-	spacing <- 0.1
-	shrink <- ifelse(which[1] == "both", 0.5, 1)
-	haps.df$ymin <- with(haps.df, ypos + pmin(0, updown*(shrink-spacing/2)))
-	haps.df$ymax <- with(haps.df, ypos + pmax(0, updown*(shrink-spacing/2)))
+	haps.df$ymin <- with(haps.df, ypos + pmin(0, updown*(shrink-gap/2)) + ifelse(updown == 1, spacing, 0))
+	haps.df$ymax <- with(haps.df, ypos + pmax(0, updown*(shrink-gap/2)) - ifelse(updown == -1, spacing, 0))
 	
 	## construct stacked-haplotype plot
 	if (!is.null(chroms))

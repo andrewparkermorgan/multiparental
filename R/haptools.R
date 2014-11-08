@@ -4,13 +4,11 @@ library(plyr)
 forbidden <- c("seqnames", "ranges", "strand", "seqlevels", "seqlengths",
 							 "isCircular", "start", "end", "width", "element")
 
-roll.haplotypes <- function(haps, seqlengths = seqlengths, seal = FALSE, ...) {
+roll.haplotypes <- function(haps, seqlengths = multiparental:::seqlengths, seal = FALSE, ...) {
 	
 	dlply(haps, .(id), function(d) {
 		rez <- dlply(d, .(origin), function(p) {
-			seg <- with(p, GRanges(seqnames = Rle(seqnames), seqlengths = seqlengths,
-														 ranges = IRanges(start = start, end = end),
-														 strain = strain, id = id))
+			seg <- makeGRangesFromDataFrame(p, keep.extra.columns = TRUE, seqinfo = seqlengths)
 			seg <- sort(seg)
 			if (seal)
 				return( seal.segments(seg) )
@@ -23,14 +21,12 @@ roll.haplotypes <- function(haps, seqlengths = seqlengths, seal = FALSE, ...) {
 	
 }
 
-roll.recombinations <- function(haps, seqlengths = seqlengths, ...) {
+roll.recombinations <- function(haps, seqlengths = multiparental:::seqlengths, ...) {
 	
 	dlply(haps, .(id), function(d) {
 		rez <- dlply(d, .(origin), function(p) {
-			gr <- with(p, GRanges(seqnames = Rle(seqnames), seqlengths = seqlengths,
-														ranges = IRanges(start = start, end = end),
-														from = from, to = to, id = id))
-			values(gr) <- cbind(values(gr), p[ ,setdiff(colnames(p), c(forbidden,colnames(values(gr)))) ])
+			gr <- makeGRangesFromDataFrame(p, keep.extra.columns = TRUE, seqinfo = seqlengths)
+			gr <- sort(gr)
 			return(gr)
 		})
 		# class(rez) <- c("haplotypes", class(rez))
