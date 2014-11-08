@@ -6,7 +6,7 @@ library(GenomicRanges)
 
 ## convert observed genotype data (NOT genoprobs) to haplotype blocks
 ## currently only works for backcross; else phasing is an issue
-rqtl.to.haplotypes <- function(x, seqlenghts = multiparental:::seqlengths, phase = "maternal", ...) {
+rqtl.to.haplotypes <- function(x, seqlengths = multiparental:::seqlengths, phase = "maternal", ...) {
 	
 	if (length(attr(x, "alleles")) > 2)
 		warning("This function only designed to work with a backcross; this might not be a backcross.")
@@ -30,13 +30,13 @@ rqtl.to.haplotypes <- function(x, seqlenghts = multiparental:::seqlengths, phase
 		
 	}, .progress = "text")
 	
-	roll.haplotypes(rez, seqlenghts = seqlengths, ...)
+	roll.haplotypes(rez, seqlengths = seqlengths, ...)
 	
 }
 
 ## convert observed genotype data (NOT genoprobs) to recombination events
 ## currently only works for backcross; else phasing is an issue
-rqtl.to.recombinations <- function(x, seqlenghts = multiparental:::seqlengths, phase = "maternal", ...) {
+rqtl.to.recombinations <- function(x, seqlengths = multiparental:::seqlengths, phase = "maternal", ...) {
 	
 	if (length(attr(x, "alleles")) > 2)
 		warning("This function only designed to work with a backcross; this might not be a backcross.")
@@ -59,8 +59,6 @@ rqtl.to.recombinations <- function(x, seqlenghts = multiparental:::seqlengths, p
 				rights <- mk[ mnames[iright],"start" ]
 				froms <- attr(x, "alleles")[ runValue(rl)[ -nblocks ] ]
 				tos <- attr(x, "alleles")[ runValue(rl)[-1] ]
-				print(froms)
-				print(tos)
 				return( data.frame(seqnames = c, start = lefts, end = rights, origin = phase,
 													 from = froms, to = tos) )
 			}
@@ -70,6 +68,6 @@ rqtl.to.recombinations <- function(x, seqlenghts = multiparental:::seqlengths, p
 		
 	}, .progress = "text")
 	
-	roll.recombinations(rez, seqlenghts = seqlengths, ...)
+	roll.recombinations(rez, seqlengths = seqlengths, ...)
 	
 }
