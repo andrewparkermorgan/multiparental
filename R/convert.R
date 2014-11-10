@@ -4,6 +4,21 @@ library(plyr)
 library(qtl)
 library(GenomicRanges)
 
+## find markers with spurious evidence for double-recombination event in >X samples
+find.suspicious.markers <- function(x, min.samples = 1, ...) {
+	
+	lapply(x$geno, function(c) {
+		mk <- apply(c$data, 1, function(z) {
+			rl <- Rle(z)
+			start(rl)[ runLength(rl) == 1 & !is.na(runValue(rl)) ]
+		})
+		mnames <- names(c$map)[ unlist(mk) ]
+		tbl <- table(mnames)
+		names(tbl)[ tbl >= min.samples ]
+	})
+	
+}
+
 ## convert observed genotype data (NOT genoprobs) to haplotype blocks
 ## currently only works for backcross; else phasing is an issue
 rqtl.to.haplotypes <- function(x, seqlengths = multiparental:::seqlengths, phase = "maternal", ...) {

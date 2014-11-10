@@ -155,3 +155,21 @@ plot.stacked.haps <- function(.haps, chroms = "chr2", which = "both",
 	return(rez)
 	
 }
+
+ggplot.GRanges <- function(x, spacing = 0.1, ...) {
+	
+	df <- as.data.frame(sort(x))
+	df$.idx <- 1:nrow(df)-1
+	p <- gggenome(df, aes(x = start, xend = end,
+												xmin = start, xmax = end,
+												y = .idx, yend = .idx,
+												ymin = (.idx - 0.5),
+												ymax = (.idx + 0.5))
+								)
+	p <- p + theme(axis.ticks.y = element_blank(),
+								 axis.text.y = element_blank(),
+								 axis.title.y = element_blank())
+	
+	return(p)
+	
+}
