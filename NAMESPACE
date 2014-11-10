@@ -22,7 +22,12 @@ export(	roll.haplotypes,
 	theme_genome,
 	gggenome,
 	plot.haplotypes,
-	plot.stacked.haps )
+	plot.stacked.haps,
+	ggplot.GRanges,
+	find.suspicious.markers,
+	rqtl.to.haplotypes,
+	rqtl.to.recombinations)
 
 # S3 methods
 S3method(plot, haplotypes)
+S3method(ggplot, GRanges)
